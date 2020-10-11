@@ -14,13 +14,24 @@ import (
 )
 
 const (
-	LoginApiUrl      = "https://pastebin.com/api/api_login.php"
-	PostApiUrl       = "https://pastebin.com/api/api_post.php"
-	RawApiUrl        = "https://pastebin.com/api/api_raw.php"
-	ScrapingApiUrl   = "https://scrape.pastebin.com/api_scraping.php"
+	LoginApiUrl = "https://pastebin.com/api/api_login.php"
+	PostApiUrl  = "https://pastebin.com/api/api_post.php"
+	RawApiUrl   = "https://pastebin.com/api/api_raw.php"
+
+	// ScrapingApiUrl is one of the URLs of Pastebin's scraping API
+	//
+	// Requires PRO Pastebin account with a linked IP
+	// See https://pastebin.com/doc_scraping_api
+	ScrapingApiUrl = "https://scrape.pastebin.com/api_scraping.php"
+
+	// ScrapeItemApiUrl is one of the URLs for Pastebin's scraping API
+	//
+	// Requires PRO Pastebin account with a linked IP
+	// See https://pastebin.com/doc_scraping_api
 	ScrapeItemApiUrl = "https://scrape.pastebin.com/api_scrape_item.php"
 
 	// RawUrlPrefix is not part of the supported API, but can still be used to fetch raw pastes.
+	//
 	// See GetPasteContent
 	RawUrlPrefix = "https://pastebin.com/raw"
 )
@@ -29,7 +40,7 @@ var (
 	ErrNotAuthenticated = errors.New("must be authenticated to perform this action")
 )
 
-// Client is the Pastebin client for performing operations that requires authentication
+// Client is the Pastebin client for performing operations that require authentication
 type Client struct {
 	username        string
 	password        string
