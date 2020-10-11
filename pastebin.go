@@ -240,7 +240,6 @@ func GetRecentPastesUsingScrapingAPI(syntax string, limit int) ([]*Paste, error)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("%s?%s", ScrapingApiUrl, url.Values{"lang": {syntax}, "limit": {strconv.Itoa(limit)}}.Encode()))
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
