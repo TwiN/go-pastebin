@@ -40,6 +40,7 @@ go get -u github.com/TwinProduction/go-pastebin
 | GetPasteContentUsingScrapingAPI | no          | Retrieves the content of a paste using Pastebin's scraping API | yes*
 | GetPasteUsingScrapingAPI        | no          | Retrieves the metadata of a paste using Pastebin's scraping API | yes*
 | GetRecentPastesUsingScrapingAPI | no          | Retrieves a list of recent pastes using Pastebin's scraping API | yes*
+
 \*To use Pastebin's Scraping API, you must [link your IP to your account](https://pastebin.com/doc_scraping_api)
 
 ### Creating a paste
