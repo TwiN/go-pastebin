@@ -30,6 +30,12 @@ const (
 	// See https://pastebin.com/doc_scraping_api
 	ScrapeItemApiUrl = "https://scrape.pastebin.com/api_scrape_item.php"
 
+	// ScrapeItemMetadataApiUrl is one of the URLs for Pastebin's scraping API
+	//
+	// Requires PRO Pastebin account with a linked IP
+	// See https://pastebin.com/doc_scraping_api
+	ScrapeItemMetadataApiUrl = "https://scrape.pastebin.com/api_scrape_item_meta.php"
+
 	// RawUrlPrefix is not part of the supported API, but can still be used to fetch raw pastes.
 	//
 	// See GetPasteContent
@@ -237,6 +243,32 @@ func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 		return "", errors.New(string(body))
 	}
 	return string(body), nil
+}
+
+// GetPasteUsingScrapingAPI retrieves the metadata of a paste by using the Scraping API (ScrapingApiUrl)
+// This does not require authentication, but only works with public and unlisted pastes.
+//
+// To use the scraping API, you must link your IP to your Pastebin account, or it will not work.
+// See https://pastebin.com/doc_scraping_api
+func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
+	client := getHttpClient()
+	response, err := client.Get(fmt.Sprintf("%s?%s", ScrapeItemMetadataApiUrl, url.Values{"i": {pasteKey}}.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") {
+		return nil, errors.New(string(body))
+	}
+	var jsonPaste jsonPaste
+	err = json.Unmarshal(body, &jsonPaste)
+	if err != nil {
+		return nil, err
+	}
+	return jsonPaste.ToPaste(), nil
 }
 
 // GetRecentPastesUsingScrapingAPI retrieves the most recent pastes using Pastebin's scraping API
