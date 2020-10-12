@@ -130,10 +130,10 @@ func (c *Client) GetUserPastes() ([]*Paste, error) {
 	return pastes, nil
 }
 
-// GetRawUserPaste retrieves the content of a paste from the authenticated user
+// GetUserPasteContent retrieves the content of a paste owned by the authenticated user
 // Unlike GetPasteContent, this function can only get the content of a paste that belongs to the authenticated user,
 // even if the paste is public.
-func (c *Client) GetRawUserPaste(pasteKey string) (string, error) {
+func (c *Client) GetUserPasteContent(pasteKey string) (string, error) {
 	if len(c.sessionKey) == 0 {
 		return "", ErrNotAuthenticated
 	}
