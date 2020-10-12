@@ -197,7 +197,7 @@ func (c *Client) doPastebinRequest(apiUrl string, fields url.Values, reAuthentic
 		// Retry the request one more time
 		return c.doPastebinRequest(apiUrl, fields, false)
 	}
-	if strings.HasPrefix(string(body), "Bad API request") {
+	if strings.HasPrefix(string(body), "Bad API request") || strings.HasPrefix(string(body), "Error") {
 		return nil, errors.New(string(body))
 	}
 	return body, nil
@@ -210,7 +210,11 @@ func (c *Client) doPastebinRequest(apiUrl string, fields url.Values, reAuthentic
 // You may want to use GetPasteContentUsingScrapingAPI instead.
 func GetPasteContent(pasteKey string) (string, error) {
 	client := getHttpClient()
-	response, err := client.Get(fmt.Sprintf("%s/%s", RawUrlPrefix, pasteKey))
+	request, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", RawUrlPrefix, pasteKey), nil)
+	if err != nil {
+		return "", err
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		return "", err
 	}
@@ -218,7 +222,7 @@ func GetPasteContent(pasteKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") {
+	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") || strings.HasPrefix(string(body), "Error") {
 		return "", errors.New(string(body))
 	}
 	return string(body), nil
@@ -231,7 +235,11 @@ func GetPasteContent(pasteKey string) (string, error) {
 // See https://pastebin.com/doc_scraping_api
 func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 	client := getHttpClient()
-	response, err := client.Get(fmt.Sprintf("%s?%s", ScrapeItemApiUrl, url.Values{"i": {pasteKey}}.Encode()))
+	request, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", ScrapeItemApiUrl, url.Values{"i": {pasteKey}}.Encode()), nil)
+	if err != nil {
+		return "", err
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		return "", err
 	}
@@ -239,7 +247,7 @@ func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") {
+	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") || strings.HasPrefix(string(body), "Error") {
 		return "", errors.New(string(body))
 	}
 	return string(body), nil
@@ -252,7 +260,11 @@ func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 // See https://pastebin.com/doc_scraping_api
 func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 	client := getHttpClient()
-	response, err := client.Get(fmt.Sprintf("%s?%s", ScrapeItemMetadataApiUrl, url.Values{"i": {pasteKey}}.Encode()))
+	request, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", ScrapeItemMetadataApiUrl, url.Values{"i": {pasteKey}}.Encode()), nil)
+	if err != nil {
+		return nil, err
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +272,7 @@ func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 	if err != nil {
 		return nil, err
 	}
-	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") {
+	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") || strings.HasPrefix(string(body), "Error") {
 		return nil, errors.New(string(body))
 	}
 	var jsonPaste jsonPaste
@@ -279,7 +291,12 @@ func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 // See https://pastebin.com/doc_scraping_api
 func GetRecentPastesUsingScrapingAPI(syntax string, limit int) ([]*Paste, error) {
 	client := getHttpClient()
-	response, err := client.Post(fmt.Sprintf("%s?%s", ScrapingApiUrl, url.Values{"lang": {syntax}, "limit": {strconv.Itoa(limit)}}.Encode()), "application/json", nil)
+	request, err := http.NewRequest("POST", fmt.Sprintf("%s?%s", ScrapingApiUrl, url.Values{"lang": {syntax}, "limit": {strconv.Itoa(limit)}}.Encode()), nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Content-Type", "application/json")
+	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +304,7 @@ func GetRecentPastesUsingScrapingAPI(syntax string, limit int) ([]*Paste, error)
 	if err != nil {
 		return nil, err
 	}
-	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") {
+	if response.StatusCode != 200 || strings.HasPrefix(string(body), "Bad API request") || strings.HasPrefix(string(body), "Error") {
 		return nil, errors.New(string(body))
 	}
 	var jsonPastes jsonPastes

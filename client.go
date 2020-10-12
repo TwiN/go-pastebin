@@ -5,9 +5,13 @@ import (
 	"time"
 )
 
-var client *http.Client
+var client HttpClient
 
-func getHttpClient() *http.Client {
+type HttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+func getHttpClient() HttpClient {
 	if client == nil {
 		client = &http.Client{
 			Timeout: time.Second * 10,
