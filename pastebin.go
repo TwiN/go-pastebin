@@ -90,7 +90,7 @@ func (c *Client) CreatePaste(request *CreatePasteRequest) (string, error) {
 	return strings.TrimPrefix(string(responseBody), "https://pastebin.com/"), nil
 }
 
-// DeletePaste removes a paste that belongs to the authenticated user
+// DeletePaste removes a paste owned by the authenticated user
 func (c *Client) DeletePaste(pasteKey string) error {
 	if len(c.sessionKey) == 0 {
 		return ErrNotAuthenticated
@@ -104,8 +104,8 @@ func (c *Client) DeletePaste(pasteKey string) error {
 	return err
 }
 
-// GetUserPastes retrieves a list of pastes from the authenticated user
-func (c *Client) GetUserPastes() ([]*Paste, error) {
+// GetAllUserPastes retrieves a list of pastes owned by the authenticated user
+func (c *Client) GetAllUserPastes() ([]*Paste, error) {
 	if len(c.sessionKey) == 0 {
 		return nil, ErrNotAuthenticated
 	}
@@ -201,7 +201,7 @@ func (c *Client) doPastebinRequest(apiUrl string, fields url.Values, reAuthentic
 // This does not require authentication, but only works with public and unlisted pastes.
 //
 // WARNING: Using this excessively could lead to your IP being blocked.
-// You may want to use the Client variants of this function.
+// You may want to use GetPasteContentUsingScrapingAPI instead.
 func GetPasteContent(pasteKey string) (string, error) {
 	client := getHttpClient()
 	response, err := client.Get(fmt.Sprintf("%s/%s", RawUrlPrefix, pasteKey))
