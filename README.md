@@ -4,8 +4,22 @@
 [![Go version](https://img.shields.io/github/go-mod/go-version/TwinProduction/go-pastebin.svg)](https://github.com/TwinProduction/go-pastebin)
 [![Follow TwinProduction](https://img.shields.io/github/followers/TwinProduction?label=Follow&style=social)](https://github.com/TwinProduction)
 
+A [Pastebin.com](https://pastebin.com/) API wrapper in Go
 
-[Pastebin.com](https://pastebin.com/) API wrapper for Golang
+
+## Table of Contents
+
+- [Usage](#usage)
+  - [Creating a paste](#creating-a-paste)
+  - [Deleting a paste](#deleting-a-paste)
+  - [Retrieving the content of a paste](#retrieving-the-content-of-a-paste)
+    - [GetUserPasteContent](#getuserpastecontent)
+    - [GetPasteContent](#getpastecontent)
+    - [GetPasteContentUsingScrapingAPI](#getpastecontentusingscrapingapi)
+  - [Retrieving paste metadata](#retrieving-paste-metadata)
+    - [GetAllUserPastes](#getalluserpastes)
+    - [GetPasteUsingScrapingAPI](#getpasteusingscrapingapi)
+    - [GetRecentPastesUsingScrapingAPI](#getrecentpastesusingscrapingapi)
 
 
 ## Usage
@@ -22,13 +36,11 @@ go get -u github.com/TwinProduction/go-pastebin
 | GetUserPasteContent             | yes         | Retrieves the content of a paste owned by the authenticated user | no
 | GetPasteContent                 | no          | Retrieves the content of a paste using the raw endpoint. This does not require authentication, but only works with public and unlisted pastes. Using this excessively could lead to your IP being blocked. You may want to use GetPasteContentUsingScrapingAPI instead. | no
 | GetPasteContentUsingScrapingAPI | no          | Retrieves the content of a paste using Pastebin's scraping API | yes*
-| GetRecentPastesUsingScrapingAPI | no          | Retrieves the most recent pastes using Pastebin's scraping API | yes*
-
+| GetPasteUsingScrapingAPI        | no          | Retrieves the metadata of a paste using Pastebin's scraping API | yes*
+| GetRecentPastesUsingScrapingAPI | no          | Retrieves a list of recent pastes using Pastebin's scraping API | yes*
 \*To use Pastebin's Scraping API, you must [link your IP to your account](https://pastebin.com/doc_scraping_api)
 
-
 ### Creating a paste
-
 You can create a paste by using `pastebin.Client`'s **CreatePaste** function:
 ```go
 client, err := pastebin.NewClient("username", "password", "token")
@@ -50,7 +62,7 @@ rather than a paste owned by a user. Note that only authenticated users may crea
 ### Deleting a paste
 You can delete a paste owned by the user configured in the client by using the **DeletePaste** function:
 ```go
-client, err := pastebin.NewClient("username", "password", "token")
+client, err := pastebin.DeleteClient("username", "password", "token")
 if err != nil {
 	panic(err)
 }
@@ -64,7 +76,6 @@ fmt.Println("Created paste:", pasteKey)
 
 ### Retrieving the content of a paste
 There 3 ways to retrieve the content of a paste:
-
 
 #### GetUserPasteContent
 If you own the paste, you should use this.
@@ -80,7 +91,6 @@ if err != nil {
 println(pasteContent)
 ```
 
-
 #### GetPasteContent
 The paste is public or unlisted, and you don't have a Pastebin PRO account.
 ```go
@@ -91,7 +101,6 @@ if err != nil {
 println(pasteContent)
 ```
 **WARNING:** Using this excessively could lead to your IP being blocked. You may want to use [GetPasteContentUsingScrapingAPI](#getpastecontentusingscrapingapi) instead.
-
 
 #### GetPasteContentUsingScrapingAPI
 The paste is public or unlisted and you have a Pastebin PRO account with your [IP linked](https://pastebin.com/doc_scraping_api).
@@ -104,3 +113,77 @@ println(pasteContent)
 ```
 
 
+### Retrieving paste metadata
+Just like [retrieving paste content](#retrieving-the-content-of-a-paste), there are many ways to retrieve paste metadata.
+
+The metadata in question contains the following elements:
+- key
+- title
+- user
+- url
+- hits
+- size
+- date
+- expiration date
+- visibility (public, unlisted, private)
+- syntax
+
+<details>
+    <summary>Paste metadata</summary>
+
+```go
+type Paste struct {
+	Key        string
+	Title      string
+	User       string
+	URL        string
+	Hits       int
+	Size       int
+	Date       time.Time
+	ExpireDate time.Time
+	Visibility Visibility
+	Syntax     string
+}
+```
+</details>
+
+#### GetAllUserPastes
+This will return a list of pastes owned by the user.
+```go
+client, err := pastebin.NewClient("username", "password", "token")
+if err != nil {
+	panic(err)
+}
+pastes, err := client.GetAllUserPastes()
+if err != nil {
+	panic(err)
+}
+for _, paste := range pastes {
+	fmt.Printf("key=%s title=%s hits=%d visibility=%d url=%s syntax=%s\n", paste.Key, paste.Title, paste.Hits, paste.Visibility, paste.URL, paste.Syntax)
+}
+```
+
+#### GetPasteUsingScrapingAPI
+This will return the metadata of a single paste.
+```go
+paste, err := pastebin.GetPasteUsingScrapingAPI("abcdefgh")
+if err != nil {
+	panic(err)
+}
+fmt.Printf("key=%s title=%s hits=%d visibility=%d url=%s syntax=%s\n", paste.Key, paste.Title, paste.Hits, paste.Visibility, paste.URL, paste.Syntax)
+```
+Because this function doesn't require authentication, it only works for public and unlisted pastes.
+
+#### GetRecentPastesUsingScrapingAPI
+This will return a list of the most recent pastes on Pastebin.
+```go
+recentPastes, err := pastebin.GetRecentPastesUsingScrapingAPI("", 30)
+if err != nil {
+	panic(err)
+}
+for _, paste := range recentPastes { 
+    fmt.Printf("key=%s title=%s hits=%d visibility=%d url=%s syntax=%s\n", paste.Key, paste.Title, paste.Hits, paste.Visibility, paste.URL, paste.Syntax)
+}
+```
+This method takes in **syntax** and **limit** as parameters. Leaving the **syntax** string empty applies no filtering. 
+The full list of supported values can be found [here](https://pastebin.com/doc_api#5).
