@@ -120,8 +120,8 @@ func TestClient_GetAllUserPastes(t *testing.T) {
 	if ExpectedVisibility := VisibilityUnlisted; pastes[0].Visibility != ExpectedVisibility {
 		t.Errorf("Expected Visibility to be '%d', got '%d'", ExpectedVisibility, pastes[0].Visibility)
 	}
-	if ExpectedDate := "2012-06-02 11:44:45 -0400 EDT"; pastes[0].Date.String() != ExpectedDate {
-		t.Errorf("Expected Date to be '%s', got '%s'", ExpectedDate, pastes[0].Date.String())
+	if ExpectedDate := int64(1338651885); pastes[0].Date.Unix() != ExpectedDate {
+		t.Errorf("Expected Date to be '%d', got '%d'", ExpectedDate, pastes[0].Date.Unix())
 	}
 }
 
