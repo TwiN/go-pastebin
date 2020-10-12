@@ -272,8 +272,8 @@ func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 }
 
 // GetRecentPastesUsingScrapingAPI retrieves the most recent pastes using Pastebin's scraping API
-// If you don't want to filter by language, you may pass an empty string
-// Maximum value for limit is 250
+// If you don't want to filter by language, you can pass an empty string as syntax.
+// The maximum value for the limit parameter is 250.
 //
 // To use the scraping API, you must link your IP to your Pastebin account, or it will not work.
 // See https://pastebin.com/doc_scraping_api
