@@ -119,7 +119,9 @@ println(pasteContent)
 ### Retrieving paste metadata
 Just like [retrieving paste content](#retrieving-the-content-of-a-paste), there are many ways to retrieve paste metadata.
 
-The metadata in question contains the following elements:
+<details>
+    <summary>List of fields available in paste metadata</summary>
+
 - key
 - title
 - user
@@ -130,24 +132,6 @@ The metadata in question contains the following elements:
 - expiration date
 - visibility (public, unlisted, private)
 - syntax
-
-<details>
-    <summary>Paste metadata</summary>
-
-```go
-type Paste struct {
-	Key        string
-	Title      string
-	User       string
-	URL        string
-	Hits       int
-	Size       int
-	Date       time.Time
-	ExpireDate time.Time
-	Visibility Visibility
-	Syntax     string
-}
-```
 </details>
 
 #### GetAllUserPastes
