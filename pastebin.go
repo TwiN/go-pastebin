@@ -182,6 +182,7 @@ func (c *Client) doPastebinRequest(apiUrl string, fields url.Values, reAuthentic
 	if err != nil {
 		return nil, err
 	}
+	defer response.Body.Close()
 	if response.StatusCode != 200 {
 		return nil, errors.New(response.Status)
 	}
@@ -218,6 +219,7 @@ func GetPasteContent(pasteKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return "", err
@@ -243,6 +245,7 @@ func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return "", err
@@ -268,6 +271,7 @@ func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
@@ -300,6 +304,7 @@ func GetRecentPastesUsingScrapingAPI(syntax string, limit int) ([]*Paste, error)
 	if err != nil {
 		return nil, err
 	}
+	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
