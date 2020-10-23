@@ -5,7 +5,6 @@
 [![codecov](https://codecov.io/gh/TwinProduction/go-pastebin/branch/master/graph/badge.svg)](https://codecov.io/gh/TwinProduction/go-pastebin)
 [![Go version](https://img.shields.io/github/go-mod/go-version/TwinProduction/go-pastebin.svg)](https://github.com/TwinProduction/go-pastebin)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/TwinProduction/go-pastebin)
-[![Follow TwinProduction](https://img.shields.io/github/followers/TwinProduction?label=Follow&style=social)](https://github.com/TwinProduction)
 
 A [Pastebin.com](https://pastebin.com/) API wrapper in Go.
 
