@@ -172,7 +172,7 @@ func (c *Client) login() error {
 // doPastebinRequest performs an HTTP request to the provided Pastebin API URL with the given fields
 // If reAuthenticateOnInvalidSessionKey is true, will automatically attempt to re-login on invalid api_user_key
 func (c *Client) doPastebinRequest(apiUrl string, fields url.Values, reAuthenticateOnInvalidSessionKey bool) ([]byte, error) {
-	client := getHttpClient()
+	client := getHTTPClient()
 	request, err := http.NewRequest("POST", apiUrl, bytes.NewBuffer([]byte(fields.Encode())))
 	if err != nil {
 		return nil, err
@@ -210,7 +210,7 @@ func (c *Client) doPastebinRequest(apiUrl string, fields url.Values, reAuthentic
 // WARNING: Using this excessively could lead to your IP being blocked.
 // You may want to use GetPasteContentUsingScrapingAPI instead.
 func GetPasteContent(pasteKey string) (string, error) {
-	client := getHttpClient()
+	client := getHTTPClient()
 	request, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", RawUrlPrefix, pasteKey), nil)
 	if err != nil {
 		return "", err
@@ -236,7 +236,7 @@ func GetPasteContent(pasteKey string) (string, error) {
 // To use the scraping API, you must link your IP to your Pastebin account, or it will not work.
 // See https://pastebin.com/doc_scraping_api
 func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
-	client := getHttpClient()
+	client := getHTTPClient()
 	request, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", ScrapeItemApiUrl, url.Values{"i": {pasteKey}}.Encode()), nil)
 	if err != nil {
 		return "", err
@@ -262,7 +262,7 @@ func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 // To use the scraping API, you must link your IP to your Pastebin account, or it will not work.
 // See https://pastebin.com/doc_scraping_api
 func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
-	client := getHttpClient()
+	client := getHTTPClient()
 	request, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", ScrapeItemMetadataApiUrl, url.Values{"i": {pasteKey}}.Encode()), nil)
 	if err != nil {
 		return nil, err
@@ -294,7 +294,7 @@ func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 // To use the scraping API, you must link your IP to your Pastebin account, or it will not work.
 // See https://pastebin.com/doc_scraping_api
 func GetRecentPastesUsingScrapingAPI(syntax string, limit int) ([]*Paste, error) {
-	client := getHttpClient()
+	client := getHTTPClient()
 	request, err := http.NewRequest("POST", fmt.Sprintf("%s?%s", ScrapingApiUrl, url.Values{"lang": {syntax}, "limit": {strconv.Itoa(limit)}}.Encode()), nil)
 	if err != nil {
 		return nil, err
