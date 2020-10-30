@@ -14,8 +14,11 @@ type HttpClient interface {
 // getHTTPClient returns the shared HTTP client
 func getHTTPClient() HttpClient {
 	if client == nil {
+		tr := http.DefaultTransport.(*http.Transport).Clone()
+		tr.MaxIdleConnsPerHost = 50
 		client = &http.Client{
-			Timeout: time.Second * 10,
+			Timeout:   time.Second * 10,
+			Transport: tr,
 		}
 	}
 	return client
