@@ -15,8 +15,7 @@ type HttpClient interface {
 func getHTTPClient() HttpClient {
 	if client == nil {
 		tr := http.DefaultTransport.(*http.Transport).Clone()
-		tr.MaxIdleConns = 150
-		tr.MaxIdleConnsPerHost = 150
+		tr.MaxIdleConnsPerHost = 50
 		client = &http.Client{
 			Timeout:   time.Second * 10,
 			Transport: tr,

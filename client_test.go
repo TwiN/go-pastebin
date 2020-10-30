@@ -21,10 +21,10 @@ func TestValidateClient(t *testing.T) {
 		t.Error("default timeout should be 10 seconds")
 	}
 	tr := cl.Transport.(*http.Transport)
-	if tr.MaxIdleConnsPerHost != 150 {
+	if tr.MaxIdleConnsPerHost != 50 {
 		t.Error("default max conns idle conns per host should be 150")
 	}
-	if tr.MaxIdleConns != 150 {
-		t.Error("default max conns idle conns should be 150")
+	if tr.MaxIdleConns != 100 {
+		t.Error("default max conns idle conns should be 100")
 	}
 }
