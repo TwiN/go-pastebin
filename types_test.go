@@ -57,12 +57,12 @@ func TestJsonPasteToPaste(t *testing.T) {
 				if p.Size != size {
 					t.Errorf("expected size %v; got %v", size, p.Size)
 				}
-				date := "1969-12-31 21:00:00"
-				if p.Date.Format("2006-01-02 15:04:05") != date {
+				date := "1970-01-01 00:00:00"
+				if p.Date.UTC().Format("2006-01-02 15:04:05") != date {
 					t.Errorf("expected date %v; got %v", date, p.Date)
 				}
-				expireDate := "1970-01-31 21:00:00"
-				if p.ExpireDate.Format("2006-01-02 15:04:05") != expireDate {
+				expireDate := "1970-02-01 00:00:00"
+				if p.ExpireDate.UTC().Format("2006-01-02 15:04:05") != expireDate {
 					t.Errorf("expected expireDate %v; got %v", expireDate, p.ExpireDate)
 				}
 				visibility := VisibilityPublic
