@@ -11,7 +11,8 @@ type HttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-func getHttpClient() HttpClient {
+// getHTTPClient returns the shared HTTP client
+func getHTTPClient() HttpClient {
 	if client == nil {
 		client = &http.Client{
 			Timeout: time.Second * 10,
