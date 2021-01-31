@@ -211,7 +211,7 @@ func (c *Client) doPastebinRequest(apiUrl string, fields url.Values, reAuthentic
 // You may want to use GetPasteContentUsingScrapingAPI instead.
 func GetPasteContent(pasteKey string) (string, error) {
 	client := getHTTPClient()
-	request, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", RawUrlPrefix, pasteKey), nil)
+	request, err := http.NewRequest("GET", RawUrlPrefix+"/"+pasteKey, nil)
 	if err != nil {
 		return "", err
 	}
@@ -237,7 +237,7 @@ func GetPasteContent(pasteKey string) (string, error) {
 // See https://pastebin.com/doc_scraping_api
 func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 	client := getHTTPClient()
-	request, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", ScrapeItemApiUrl, url.Values{"i": {pasteKey}}.Encode()), nil)
+	request, err := http.NewRequest("GET", ScrapeItemApiUrl+"?"+url.Values{"i": {pasteKey}}.Encode(), nil)
 	if err != nil {
 		return "", err
 	}
@@ -263,7 +263,7 @@ func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 // See https://pastebin.com/doc_scraping_api
 func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 	client := getHTTPClient()
-	request, err := http.NewRequest("GET", fmt.Sprintf("%s?%s", ScrapeItemMetadataApiUrl, url.Values{"i": {pasteKey}}.Encode()), nil)
+	request, err := http.NewRequest("GET", ScrapeItemMetadataApiUrl+"?"+url.Values{"i": {pasteKey}}.Encode(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +295,7 @@ func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 // See https://pastebin.com/doc_scraping_api
 func GetRecentPastesUsingScrapingAPI(syntax string, limit int) ([]*Paste, error) {
 	client := getHTTPClient()
-	request, err := http.NewRequest("POST", fmt.Sprintf("%s?%s", ScrapingApiUrl, url.Values{"lang": {syntax}, "limit": {strconv.Itoa(limit)}}.Encode()), nil)
+	request, err := http.NewRequest("POST", ScrapingApiUrl+"?"+url.Values{"lang": {syntax}, "limit": {strconv.Itoa(limit)}}.Encode(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -313,6 +313,7 @@ func GetRecentPastesUsingScrapingAPI(syntax string, limit int) ([]*Paste, error)
 		return nil, errors.New(string(body))
 	}
 	var jsonPastes jsonPastes
+	// the output isn't formatted properly, so we'll cheat a bit
 	err = json.Unmarshal([]byte(fmt.Sprintf("{\"pastes\":%s}", string(body))), &jsonPastes)
 	if err != nil {
 		return nil, err
