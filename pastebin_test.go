@@ -351,6 +351,6 @@ func TestGetRecentPastesUsingScrapingAPI(t *testing.T) {
 		t.Fatal("shouldn't have returned an error, got", err.Error())
 	}
 	if len(pastes) != 1 {
-		t.Error("expected 1 paste to be returned")
+		t.Error("expected 1 paste to be returned, got", len(pastes))
 	}
 }
