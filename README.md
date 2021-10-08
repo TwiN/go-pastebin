@@ -1,10 +1,10 @@
 # go-pastebin
 
-![build](https://github.com/TwinProduction/go-pastebin/workflows/build/badge.svg?branch=master) 
-[![Go Report Card](https://goreportcard.com/badge/github.com/TwinProduction/go-pastebin)](https://goreportcard.com/report/github.com/TwinProduction/go-pastebin)
-[![codecov](https://codecov.io/gh/TwinProduction/go-pastebin/branch/master/graph/badge.svg)](https://codecov.io/gh/TwinProduction/go-pastebin)
-[![Go version](https://img.shields.io/github/go-mod/go-version/TwinProduction/go-pastebin.svg)](https://github.com/TwinProduction/go-pastebin)
-[![Go Reference](https://pkg.go.dev/badge/github.com/TwinProduction/go-pastebin.svg)](https://pkg.go.dev/github.com/TwinProduction/go-pastebin)
+![build](https://github.com/TwiN/go-pastebin/workflows/build/badge.svg?branch=master) 
+[![Go Report Card](https://goreportcard.com/badge/github.com/TwiN/go-pastebin)](https://goreportcard.com/report/github.com/TwiN/go-pastebin)
+[![codecov](https://codecov.io/gh/TwiN/go-pastebin/branch/master/graph/badge.svg)](https://codecov.io/gh/TwiN/go-pastebin)
+[![Go version](https://img.shields.io/github/go-mod/go-version/TwiN/go-pastebin.svg)](https://github.com/TwiN/go-pastebin)
+[![Go Reference](https://pkg.go.dev/badge/github.com/TwiN/go-pastebin.svg)](https://pkg.go.dev/github.com/TwiN/go-pastebin)
 
 A [Pastebin.com](https://pastebin.com/) API wrapper in Go.
 
@@ -26,7 +26,7 @@ A [Pastebin.com](https://pastebin.com/) API wrapper in Go.
 
 ## Usage
 ```
-go get -u github.com/TwinProduction/go-pastebin
+go get -u github.com/TwiN/go-pastebin
 ```
 
 | Function                        | Client      | Description | PRO          |

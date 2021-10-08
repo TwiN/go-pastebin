@@ -33,7 +33,7 @@ func TestJsonPasteToPaste(t *testing.T) {
 				Expire:    strconv.FormatInt(time.Date(1970, 2, 1, 0, 0, 0, 0, time.UTC).Unix(), 10),
 				Title:     "Golang",
 				Syntax:    "go",
-				User:      "TwinProduction",
+				User:      "TwiN",
 				Hits:      "3",
 			},
 			assert: func(t *testing.T, p *Paste) {
@@ -73,7 +73,7 @@ func TestJsonPasteToPaste(t *testing.T) {
 				if p.Syntax != syntax {
 					t.Errorf("expected syntax %v; got %v", syntax, p.Syntax)
 				}
-				user := "TwinProduction"
+				user := "TwiN"
 				if p.User != user {
 					t.Errorf("expected user %v; got %v", user, p.User)
 				}

@@ -1,3 +1,3 @@
-module github.com/TwinProduction/go-pastebin
+module github.com/TwiN/go-pastebin
 
 go 1.16
