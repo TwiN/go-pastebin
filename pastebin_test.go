@@ -2,7 +2,7 @@ package pastebin
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 )
@@ -29,14 +29,14 @@ func init() {
 func TestNewClient(t *testing.T) {
 	client = &mockClient{
 		DoFunc: func(request *http.Request) (*http.Response, error) {
-			body, _ := ioutil.ReadAll(request.Body)
+			body, _ := io.ReadAll(request.Body)
 			defer request.Body.Close()
 			if request.URL.String() == LoginApiUrl && string(body) == "api_dev_key=token&api_user_name=username&api_user_password=password" {
-				return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(bytes.NewBufferString("session-key"))}, nil
+				return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("session-key"))}, nil
 			}
 			return &http.Response{
 				StatusCode: 403,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("forbidden")),
+				Body:       io.NopCloser(bytes.NewBufferString("forbidden")),
 			}, nil
 		},
 	}
@@ -59,17 +59,17 @@ func TestNewClientWithoutUsernameAndPassword(t *testing.T) {
 func TestClient_DeletePaste(t *testing.T) {
 	client = &mockClient{
 		DoFunc: func(request *http.Request) (*http.Response, error) {
-			body, _ := ioutil.ReadAll(request.Body)
+			body, _ := io.ReadAll(request.Body)
 			defer request.Body.Close()
 			if request.URL.String() == LoginApiUrl && string(body) == "api_dev_key=token&api_user_name=username&api_user_password=password" {
-				return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(bytes.NewBufferString("session-key"))}, nil
+				return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("session-key"))}, nil
 			}
 			if request.URL.String() == RawApiUrl && string(body) == "api_dev_key=token&api_option=delete&api_paste_key=paste-key&api_user_key=session-key" {
-				return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(bytes.NewBufferString("deleted"))}, nil
+				return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("deleted"))}, nil
 			}
 			return &http.Response{
 				StatusCode: 400,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("bad request")),
+				Body:       io.NopCloser(bytes.NewBufferString("bad request")),
 			}, nil
 		},
 	}
@@ -94,12 +94,12 @@ func TestClient_CreatePaste(t *testing.T) {
 			if request.URL.String() == LoginApiUrl {
 				return &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(bytes.NewBufferString("session-key")),
+					Body:       io.NopCloser(bytes.NewBufferString("session-key")),
 				}, nil
 			}
 			return &http.Response{
 				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("https://pastebin.com/abcdefgh")),
+				Body:       io.NopCloser(bytes.NewBufferString("https://pastebin.com/abcdefgh")),
 			}, nil
 		},
 	}
@@ -127,12 +127,12 @@ func TestClient_CreatePasteWhenHTTPRequestReturnsError(t *testing.T) {
 			if request.URL.String() == LoginApiUrl {
 				return &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(bytes.NewBufferString("session-key")),
+					Body:       io.NopCloser(bytes.NewBufferString("session-key")),
 				}, nil
 			}
 			return &http.Response{
 				StatusCode: 403,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("error")),
+				Body:       io.NopCloser(bytes.NewBufferString("error")),
 			}, nil
 		},
 	}
@@ -151,19 +151,19 @@ func TestClient_CreatePasteWhenSessionKeyExpired(t *testing.T) {
 				numberOfCallsToLoginApiUrl++
 				return &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(bytes.NewBufferString("session-key")),
+					Body:       io.NopCloser(bytes.NewBufferString("session-key")),
 				}, nil
 			}
 			// Mock the behavior of an expired sessionKey, which should trigger an automatic re-login
 			if numberOfCallsToLoginApiUrl == 1 {
 				return &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(bytes.NewBufferString("Bad API request, invalid api_user_key")),
+					Body:       io.NopCloser(bytes.NewBufferString("Bad API request, invalid api_user_key")),
 				}, nil
 			}
 			return &http.Response{
 				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("https://pastebin.com/abcdefgh")),
+				Body:       io.NopCloser(bytes.NewBufferString("https://pastebin.com/abcdefgh")),
 			}, nil
 		},
 	}
@@ -186,12 +186,12 @@ func TestClient_GetUserPasteContent(t *testing.T) {
 			if request.URL.String() == LoginApiUrl {
 				return &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(bytes.NewBufferString("session-key")),
+					Body:       io.NopCloser(bytes.NewBufferString("session-key")),
 				}, nil
 			}
 			return &http.Response{
 				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("content")),
+				Body:       io.NopCloser(bytes.NewBufferString("content")),
 			}, nil
 		},
 	}
@@ -210,7 +210,7 @@ func TestClient_GetAllUserPastes(t *testing.T) {
 		DoFunc: func(request *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 200,
-				Body: ioutil.NopCloser(bytes.NewBufferString(`<paste>
+				Body: io.NopCloser(bytes.NewBufferString(`<paste>
 	<paste_key>fakefake</paste_key>
 	<paste_date>1338651885</paste_date>
 	<paste_title>Fake Paste</paste_title>
@@ -272,7 +272,7 @@ func TestGetPasteContent(t *testing.T) {
 		DoFunc: func(request *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("this is code")),
+				Body:       io.NopCloser(bytes.NewBufferString("this is code")),
 			}, nil
 		},
 	}
@@ -290,7 +290,7 @@ func TestGetPasteUsingScrapingAPIWhenPasteKeyInvalid(t *testing.T) {
 		DoFunc: func(request *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("Error, we cannot find this paste.")),
+				Body:       io.NopCloser(bytes.NewBufferString("Error, we cannot find this paste.")),
 			}, nil
 		},
 	}
@@ -305,7 +305,7 @@ func TestGetPasteContentUsingScrapingAPIWhenPasteKeyInvalid(t *testing.T) {
 		DoFunc: func(request *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 200,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("Error, paste key is not valid.")),
+				Body:       io.NopCloser(bytes.NewBufferString("Error, paste key is not valid.")),
 			}, nil
 		},
 	}
@@ -320,7 +320,7 @@ func TestGetPasteContentUsingScrapingAPIWhenIpBlocked(t *testing.T) {
 		DoFunc: func(request *http.Request) (*http.Response, error) {
 			return &http.Response{
 				StatusCode: 403,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("Forbidden: YOUR IP: 1.256.256.256 DOES NOT HAVE ACCESS. VISIT: https://pastebin.com/doc_scraping_api TO GET ACCESS!")),
+				Body:       io.NopCloser(bytes.NewBufferString("Forbidden: YOUR IP: 1.256.256.256 DOES NOT HAVE ACCESS. VISIT: https://pastebin.com/doc_scraping_api TO GET ACCESS!")),
 			}, nil
 		},
 	}
@@ -336,13 +336,13 @@ func TestGetRecentPastesUsingScrapingAPI(t *testing.T) {
 			if request.URL.String() == ScrapingApiUrl+"?lang=go&limit=1" {
 				return &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(bytes.NewBufferString(`[{"title":"title"}]`)),
+					Body:       io.NopCloser(bytes.NewBufferString(`[{"title":"title"}]`)),
 				}, nil
 			}
 			t.Error(request)
 			return &http.Response{
 				StatusCode: 400,
-				Body:       ioutil.NopCloser(bytes.NewBufferString("bad request")),
+				Body:       io.NopCloser(bytes.NewBufferString("bad request")),
 			}, nil
 		},
 	}

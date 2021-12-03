@@ -6,7 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -186,7 +186,7 @@ func (c *Client) doPastebinRequest(apiUrl string, fields url.Values, reAuthentic
 	if response.StatusCode != 200 {
 		return nil, errors.New(response.Status)
 	}
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +220,7 @@ func GetPasteContent(pasteKey string) (string, error) {
 		return "", err
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", err
 	}
@@ -246,7 +246,7 @@ func GetPasteContentUsingScrapingAPI(pasteKey string) (string, error) {
 		return "", err
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", err
 	}
@@ -272,7 +272,7 @@ func GetPasteUsingScrapingAPI(pasteKey string) (*Paste, error) {
 		return nil, err
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -305,7 +305,7 @@ func GetRecentPastesUsingScrapingAPI(syntax string, limit int) ([]*Paste, error)
 		return nil, err
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
