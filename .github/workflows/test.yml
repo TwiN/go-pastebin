@@ -1,4 +1,4 @@
-name: build
+name: test
 on:
   pull_request:
     paths-ignore:
@@ -9,8 +9,8 @@ on:
     paths-ignore:
       - '*.md'
 jobs:
-  build:
-    name: Build
+  test:
+    name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -20,8 +20,6 @@ jobs:
           go-version: 1.17
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
-      - name: Build binary to make sure it works
-        run: go build -mod vendor
       - name: Test
         run: go test -mod vendor ./... -race -coverprofile=coverage.txt -covermode=atomic
       - name: Codecov
