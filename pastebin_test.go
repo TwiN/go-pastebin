@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"testing"
+
+	"github.com/TwiN/go-pastebin/test"
 )
 
 type mockClient struct {
@@ -18,28 +20,18 @@ func (m *mockClient) Do(request *http.Request) (*http.Response, error) {
 	return &http.Response{}, nil
 }
 
-func init() {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			return nil, nil
-		},
-	}
-}
-
 func TestNewClient(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			body, _ := io.ReadAll(request.Body)
-			defer request.Body.Close()
-			if request.URL.String() == LoginApiUrl && string(body) == "api_dev_key=token&api_user_name=username&api_user_password=password" {
-				return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("session-key"))}, nil
-			}
-			return &http.Response{
-				StatusCode: 403,
-				Body:       io.NopCloser(bytes.NewBufferString("forbidden")),
-			}, nil
-		},
-	}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		body, _ := io.ReadAll(request.Body)
+		defer request.Body.Close()
+		if request.URL.String() == LoginApiUrl && string(body) == "api_dev_key=token&api_user_name=username&api_user_password=password" {
+			return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("session-key"))}
+		}
+		return &http.Response{
+			StatusCode: 403,
+			Body:       io.NopCloser(bytes.NewBufferString("forbidden")),
+		}
+	})}
 	client, _ := NewClient("username", "password", "token")
 	if client.sessionKey != "session-key" {
 		t.Errorf("expected %s, got %s", "session-key", client.sessionKey)
@@ -57,22 +49,20 @@ func TestNewClientWithoutUsernameAndPassword(t *testing.T) {
 }
 
 func TestClient_DeletePaste(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			body, _ := io.ReadAll(request.Body)
-			defer request.Body.Close()
-			if request.URL.String() == LoginApiUrl && string(body) == "api_dev_key=token&api_user_name=username&api_user_password=password" {
-				return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("session-key"))}, nil
-			}
-			if request.URL.String() == RawApiUrl && string(body) == "api_dev_key=token&api_option=delete&api_paste_key=paste-key&api_user_key=session-key" {
-				return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("deleted"))}, nil
-			}
-			return &http.Response{
-				StatusCode: 400,
-				Body:       io.NopCloser(bytes.NewBufferString("bad request")),
-			}, nil
-		},
-	}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		body, _ := io.ReadAll(request.Body)
+		defer request.Body.Close()
+		if request.URL.String() == LoginApiUrl && string(body) == "api_dev_key=token&api_user_name=username&api_user_password=password" {
+			return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("session-key"))}
+		}
+		if request.URL.String() == RawApiUrl && string(body) == "api_dev_key=token&api_option=delete&api_paste_key=paste-key&api_user_key=session-key" {
+			return &http.Response{StatusCode: 200, Body: io.NopCloser(bytes.NewBufferString("deleted"))}
+		}
+		return &http.Response{
+			StatusCode: 400,
+			Body:       io.NopCloser(bytes.NewBufferString("bad request")),
+		}
+	})}
 	client, _ := NewClient("username", "password", "token")
 	err := client.DeletePaste("paste-key")
 	if err != nil {
@@ -89,20 +79,18 @@ func TestClient_DeletePasteWhenNotAuthenticated(t *testing.T) {
 }
 
 func TestClient_CreatePaste(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			if request.URL.String() == LoginApiUrl {
-				return &http.Response{
-					StatusCode: 200,
-					Body:       io.NopCloser(bytes.NewBufferString("session-key")),
-				}, nil
-			}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		if request.URL.String() == LoginApiUrl {
 			return &http.Response{
 				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewBufferString("https://pastebin.com/abcdefgh")),
-			}, nil
-		},
-	}
+				Body:       io.NopCloser(bytes.NewBufferString("session-key")),
+			}
+		}
+		return &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(bytes.NewBufferString("https://pastebin.com/abcdefgh")),
+		}
+	})}
 	client, _ := NewClient("username", "password", "token")
 	pasteKey, err := client.CreatePaste(NewCreatePasteRequest("", "", ExpirationTenMinutes, VisibilityPublic, ""))
 	if err != nil {
@@ -122,20 +110,18 @@ func TestClient_CreatePasteWithPrivateVisibility(t *testing.T) {
 }
 
 func TestClient_CreatePasteWhenHTTPRequestReturnsError(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			if request.URL.String() == LoginApiUrl {
-				return &http.Response{
-					StatusCode: 200,
-					Body:       io.NopCloser(bytes.NewBufferString("session-key")),
-				}, nil
-			}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		if request.URL.String() == LoginApiUrl {
 			return &http.Response{
-				StatusCode: 403,
-				Body:       io.NopCloser(bytes.NewBufferString("error")),
-			}, nil
-		},
-	}
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewBufferString("session-key")),
+			}
+		}
+		return &http.Response{
+			StatusCode: 403,
+			Body:       io.NopCloser(bytes.NewBufferString("error")),
+		}
+	})}
 	client, _ := NewClient("username", "password", "token")
 	_, err := client.CreatePaste(NewCreatePasteRequest("", "", ExpirationTenMinutes, VisibilityPublic, ""))
 	if err == nil {
@@ -145,28 +131,26 @@ func TestClient_CreatePasteWhenHTTPRequestReturnsError(t *testing.T) {
 
 func TestClient_CreatePasteWhenSessionKeyExpired(t *testing.T) {
 	numberOfCallsToLoginApiUrl := 0
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			if request.URL.String() == LoginApiUrl {
-				numberOfCallsToLoginApiUrl++
-				return &http.Response{
-					StatusCode: 200,
-					Body:       io.NopCloser(bytes.NewBufferString("session-key")),
-				}, nil
-			}
-			// Mock the behavior of an expired sessionKey, which should trigger an automatic re-login
-			if numberOfCallsToLoginApiUrl == 1 {
-				return &http.Response{
-					StatusCode: 200,
-					Body:       io.NopCloser(bytes.NewBufferString("Bad API request, invalid api_user_key")),
-				}, nil
-			}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		if request.URL.String() == LoginApiUrl {
+			numberOfCallsToLoginApiUrl++
 			return &http.Response{
 				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewBufferString("https://pastebin.com/abcdefgh")),
-			}, nil
-		},
-	}
+				Body:       io.NopCloser(bytes.NewBufferString("session-key")),
+			}
+		}
+		// Mock the behavior of an expired sessionKey, which should trigger an automatic re-login
+		if numberOfCallsToLoginApiUrl == 1 {
+			return &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewBufferString("Bad API request, invalid api_user_key")),
+			}
+		}
+		return &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(bytes.NewBufferString("https://pastebin.com/abcdefgh")),
+		}
+	})}
 	client, _ := NewClient("username", "password", "token")
 	pasteKey, err := client.CreatePaste(NewCreatePasteRequest("", "", ExpirationTenMinutes, VisibilityPublic, ""))
 	if err != nil {
@@ -181,20 +165,18 @@ func TestClient_CreatePasteWhenSessionKeyExpired(t *testing.T) {
 }
 
 func TestClient_GetUserPasteContent(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			if request.URL.String() == LoginApiUrl {
-				return &http.Response{
-					StatusCode: 200,
-					Body:       io.NopCloser(bytes.NewBufferString("session-key")),
-				}, nil
-			}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		if request.URL.String() == LoginApiUrl {
 			return &http.Response{
 				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewBufferString("content")),
-			}, nil
-		},
-	}
+				Body:       io.NopCloser(bytes.NewBufferString("session-key")),
+			}
+		}
+		return &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(bytes.NewBufferString("content")),
+		}
+	})}
 	client, _ := NewClient("username", "password", "token")
 	content, err := client.GetUserPasteContent("does-not-matter-because-client-is-mocked")
 	if err != nil {
@@ -206,11 +188,10 @@ func TestClient_GetUserPasteContent(t *testing.T) {
 }
 
 func TestClient_GetAllUserPastes(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: 200,
-				Body: io.NopCloser(bytes.NewBufferString(`<paste>
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		return &http.Response{
+			StatusCode: 200,
+			Body: io.NopCloser(bytes.NewBufferString(`<paste>
 	<paste_key>fakefake</paste_key>
 	<paste_date>1338651885</paste_date>
 	<paste_title>Fake Paste</paste_title>
@@ -222,9 +203,8 @@ func TestClient_GetAllUserPastes(t *testing.T) {
 	<paste_url>https://pastebin.com/fakefake</paste_url>
 	<paste_hits>9999</paste_hits>
 </paste>`)),
-			}, nil
-		},
-	}
+		}
+	})}
 	client, _ := NewClient("username", "password", "token")
 	pastes, err := client.GetAllUserPastes()
 	if err != nil {
@@ -268,14 +248,12 @@ func TestClient_GetAllUserPastesWithoutCredentials(t *testing.T) {
 }
 
 func TestGetPasteContent(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewBufferString("this is code")),
-			}, nil
-		},
-	}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		return &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(bytes.NewBufferString("this is code")),
+		}
+	})}
 	pasteContent, err := GetPasteContent("abcdefgh")
 	if err != nil {
 		t.Fatal("shouldn't have returned an error, but returned", err)
@@ -286,14 +264,12 @@ func TestGetPasteContent(t *testing.T) {
 }
 
 func TestGetPasteUsingScrapingAPIWhenPasteKeyInvalid(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewBufferString("Error, we cannot find this paste.")),
-			}, nil
-		},
-	}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		return &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(bytes.NewBufferString("Error, we cannot find this paste.")),
+		}
+	})}
 	_, err := GetPasteUsingScrapingAPI("")
 	if ExpectedError := "Error, we cannot find this paste."; err == nil || err.Error() != ExpectedError {
 		t.Errorf("error should've been '%s', but was '%s'", ExpectedError, err)
@@ -301,14 +277,12 @@ func TestGetPasteUsingScrapingAPIWhenPasteKeyInvalid(t *testing.T) {
 }
 
 func TestGetPasteContentUsingScrapingAPIWhenPasteKeyInvalid(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: 200,
-				Body:       io.NopCloser(bytes.NewBufferString("Error, paste key is not valid.")),
-			}, nil
-		},
-	}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		return &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(bytes.NewBufferString("Error, paste key is not valid.")),
+		}
+	})}
 	_, err := GetPasteContentUsingScrapingAPI("")
 	if ExpectedError := "Error, paste key is not valid."; err == nil || err.Error() != ExpectedError {
 		t.Errorf("error should've been '%s', but was '%s'", ExpectedError, err)
@@ -316,14 +290,12 @@ func TestGetPasteContentUsingScrapingAPIWhenPasteKeyInvalid(t *testing.T) {
 }
 
 func TestGetPasteContentUsingScrapingAPIWhenIpBlocked(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			return &http.Response{
-				StatusCode: 403,
-				Body:       io.NopCloser(bytes.NewBufferString("Forbidden: YOUR IP: 1.256.256.256 DOES NOT HAVE ACCESS. VISIT: https://pastebin.com/doc_scraping_api TO GET ACCESS!")),
-			}, nil
-		},
-	}
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		return &http.Response{
+			StatusCode: 403,
+			Body:       io.NopCloser(bytes.NewBufferString("Forbidden: YOUR IP: 1.256.256.256 DOES NOT HAVE ACCESS. VISIT: https://pastebin.com/doc_scraping_api TO GET ACCESS!")),
+		}
+	})}
 	_, err := GetPasteContentUsingScrapingAPI("abcdefgh")
 	if err == nil {
 		t.Error("should've returned an error")
@@ -331,21 +303,19 @@ func TestGetPasteContentUsingScrapingAPIWhenIpBlocked(t *testing.T) {
 }
 
 func TestGetRecentPastesUsingScrapingAPI(t *testing.T) {
-	client = &mockClient{
-		DoFunc: func(request *http.Request) (*http.Response, error) {
-			if request.URL.String() == ScrapingApiUrl+"?lang=go&limit=1" {
-				return &http.Response{
-					StatusCode: 200,
-					Body:       io.NopCloser(bytes.NewBufferString(`[{"title":"title"}]`)),
-				}, nil
-			}
-			t.Error(request)
+	httpClient = &http.Client{Transport: test.MockRoundTripper(func(request *http.Request) *http.Response {
+		if request.URL.String() == ScrapingApiUrl+"?lang=go&limit=1" {
 			return &http.Response{
-				StatusCode: 400,
-				Body:       io.NopCloser(bytes.NewBufferString("bad request")),
-			}, nil
-		},
-	}
+				StatusCode: 200,
+				Body:       io.NopCloser(bytes.NewBufferString(`[{"title":"title"}]`)),
+			}
+		}
+		t.Error(request)
+		return &http.Response{
+			StatusCode: 400,
+			Body:       io.NopCloser(bytes.NewBufferString("bad request")),
+		}
+	})}
 	pastes, err := GetRecentPastesUsingScrapingAPI("go", 1)
 	if err != nil {
 		t.Fatal("shouldn't have returned an error, got", err.Error())

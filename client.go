@@ -5,21 +5,17 @@ import (
 	"time"
 )
 
-var client HttpClient
-
-type HttpClient interface {
-	Do(req *http.Request) (*http.Response, error)
-}
+var httpClient *http.Client
 
 // getHTTPClient returns the shared HTTP client
-func getHTTPClient() HttpClient {
-	if client == nil {
+func getHTTPClient() *http.Client {
+	if httpClient == nil {
 		tr := http.DefaultTransport.(*http.Transport).Clone()
 		tr.MaxIdleConnsPerHost = 50
-		client = &http.Client{
+		httpClient = &http.Client{
 			Timeout:   time.Second * 10,
 			Transport: tr,
 		}
 	}
-	return client
+	return httpClient
 }
