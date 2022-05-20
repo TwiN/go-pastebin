@@ -124,6 +124,9 @@ type CreatePasteRequest struct {
 	Syntax string
 }
 
+// NewCreatePasteRequest creates a new CreatePasteRequest struct
+//
+// Should be used as parameter to the Client.CreatePaste method
 func NewCreatePasteRequest(title, code string, expiration Expiration, visibility Visibility, syntax string) *CreatePasteRequest {
 	return &CreatePasteRequest{
 		Title:      title,
