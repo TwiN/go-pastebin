@@ -29,17 +29,17 @@ A [Pastebin.com](https://pastebin.com/) API wrapper in Go.
 go get -u github.com/TwiN/go-pastebin
 ```
 
-| Function                        | Client      | Description | PRO          |
-|:------------------------------- |:----------- |:----------- |:------------ |
-| NewClient                       | n/a         | Creates a new Client | no
-| CreatePaste                     | yes         | Creates a new paste and returns the paste key | no
-| DeletePaste                     | yes         | Removes a paste that belongs to the authenticated user | no
-| GetAllUserPastes                | yes         | Retrieves a list of pastes owned by the authenticated user | no
-| GetUserPasteContent             | yes         | Retrieves the content of a paste owned by the authenticated user | no
-| GetPasteContent                 | no          | Retrieves the content of a paste using the raw endpoint. This does not require authentication, but only works with public and unlisted pastes. Using this excessively could lead to your IP being blocked. You may want to use GetPasteContentUsingScrapingAPI instead. | no
-| GetPasteContentUsingScrapingAPI | no          | Retrieves the content of a paste using Pastebin's scraping API | yes*
-| GetPasteUsingScrapingAPI        | no          | Retrieves the metadata of a paste using Pastebin's scraping API | yes*
-| GetRecentPastesUsingScrapingAPI | no          | Retrieves a list of recent pastes using Pastebin's scraping API | yes*
+| Function                        | Client | Description                                                                                                                                                                                                                                                             | PRO  |
+|:--------------------------------|:-------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----|
+| NewClient                       | n/a    | Creates a new Client                                                                                                                                                                                                                                                    | no   |
+| CreatePaste                     | yes    | Creates a new paste and returns the paste key                                                                                                                                                                                                                           | no   |
+| DeletePaste                     | yes    | Removes a paste that belongs to the authenticated user                                                                                                                                                                                                                  | no   |
+| GetAllUserPastes                | yes    | Retrieves a list of pastes owned by the authenticated user                                                                                                                                                                                                              | no   |
+| GetUserPasteContent             | yes    | Retrieves the content of a paste owned by the authenticated user                                                                                                                                                                                                        | no   |
+| GetPasteContent                 | no     | Retrieves the content of a paste using the raw endpoint. This does not require authentication, but only works with public and unlisted pastes. Using this excessively could lead to your IP being blocked. You may want to use GetPasteContentUsingScrapingAPI instead. | no   |
+| GetPasteContentUsingScrapingAPI | no     | Retrieves the content of a paste using Pastebin's scraping API                                                                                                                                                                                                          | yes* |
+| GetPasteUsingScrapingAPI        | no     | Retrieves the metadata of a paste using Pastebin's scraping API                                                                                                                                                                                                         | yes* |
+| GetRecentPastesUsingScrapingAPI | no     | Retrieves a list of recent pastes using Pastebin's scraping API                                                                                                                                                                                                         | yes* |
 
 \*To use Pastebin's Scraping API, you must [link your IP to your account](https://pastebin.com/doc_scraping_api)
 
