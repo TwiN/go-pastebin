@@ -1,6 +1,6 @@
 # go-pastebin
 
-![test](https://github.com/TwiN/go-pastebin/actions/workflows/test.yml/badge.svg
+![test](https://github.com/TwiN/go-pastebin/actions/workflows/test.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/TwiN/go-pastebin)](https://goreportcard.com/report/github.com/TwiN/go-pastebin)
 [![codecov](https://codecov.io/gh/TwiN/go-pastebin/branch/master/graph/badge.svg)](https://codecov.io/gh/TwiN/go-pastebin)
 [![Go version](https://img.shields.io/github/go-mod/go-version/TwiN/go-pastebin.svg)](https://github.com/TwiN/go-pastebin)
